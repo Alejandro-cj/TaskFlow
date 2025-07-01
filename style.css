@@ -101,3 +101,19 @@ form button {
 .cards.drag-over {
   border-color: #3b82f6;
 }
+
+#clear-board {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+#clear-board:hover {
+  background-color: #dc2626;
+}

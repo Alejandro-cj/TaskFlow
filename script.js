@@ -7,10 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
     done: document.getElementById("done-cards"),
   };
 
-  // Cargar tarjetas al inicio
+  // 👉 Paso 6: Cargar tarjetas guardadas al cargar la página
   loadFromStorage(cardsContainers);
 
-  // Agregar nueva tarjeta
+  // 👉 Paso 3: Crear nuevas tarjetas al enviar el formulario
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const text = input.value.trim();
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Configurar zonas de drop para todas las listas
+  // 👉 Paso 5: Configurar las zonas para soltar tarjetas (drag & drop)
   Object.entries(cardsContainers).forEach(([zoneName, zone]) => {
     zone.addEventListener("dragover", (e) => {
       e.preventDefault();
@@ -38,13 +38,27 @@ document.addEventListener("DOMContentLoaded", () => {
       zone.classList.remove("drag-over");
       if (window.draggedCard) {
         zone.appendChild(window.draggedCard);
-        saveToStorage(cardsContainers); // 👉 aquí se agregó esto (guardar después de mover)
+        saveToStorage(cardsContainers); // guardar después de mover
       }
     });
   });
+
+  // 👉 Paso 7: Botón para limpiar el tablero completo
+  const clearBtn = document.getElementById("clear-board");
+  clearBtn.addEventListener("click", () => {
+    if (confirm("¿Estás seguro de que quieres borrar todas las tareas?")) {
+      // Limpiar tarjetas de la interfaz
+      Object.values(cardsContainers).forEach(container => {
+        container.innerHTML = "";
+      });
+
+      // Limpiar localStorage
+      localStorage.removeItem("taskflow-data");
+    }
+  });
 });
 
-// Crear una tarjeta visual
+// 👉 Función que crea una tarjeta DOM con eventos (usada en creación y carga)
 function createCard(text, listName, containers) {
   const card = document.createElement("div");
   card.className = "card";
@@ -58,7 +72,7 @@ function createCard(text, listName, containers) {
   deleteBtn.className = "delete-btn";
   deleteBtn.addEventListener("click", () => {
     card.remove();
-    saveToStorage(containers); // 👉 aquí se agregó esto (guardar después de borrar)
+    saveToStorage(containers); // guardar después de eliminar
   });
 
   card.appendChild(span);
@@ -77,7 +91,7 @@ function createCard(text, listName, containers) {
   return card;
 }
 
-// Guardar todas las tarjetas en localStorage
+// 👉 Guardar todas las tarjetas por lista en localStorage
 function saveToStorage(containers) {
   const data = {
     todo: [],
@@ -95,7 +109,7 @@ function saveToStorage(containers) {
   localStorage.setItem("taskflow-data", JSON.stringify(data));
 }
 
-// Cargar tarjetas desde localStorage
+// 👉 Cargar las tarjetas guardadas desde localStorage al inicio
 function loadFromStorage(containers) {
   const data = JSON.parse(localStorage.getItem("taskflow-data"));
   if (!data) return;
