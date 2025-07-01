@@ -1,7 +1,43 @@
 body {
-  font-family: sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f4;
+  background-color: #e8eff5;
+}
+
+header {
+  background-color: #3b82f6;
+  color: white;
+  padding: 1rem;
   text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.board {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  justify-content: center;
+  overflow-x: auto;
+}
+
+.list {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  width: 300px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.list h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: #374151;
+}
+
+.cards {
+  min-height: 100px;
+  margin-top: 1rem;
 }
