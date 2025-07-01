@@ -1,3 +1,5 @@
+let currentBoard = "Principal"; // tablero por defecto
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("todo-form");
   const input = document.getElementById("todo-input");
@@ -7,22 +9,110 @@ document.addEventListener("DOMContentLoaded", () => {
     done: document.getElementById("done-cards"),
   };
 
-  // 👉 Paso 6: Cargar tarjetas guardadas al cargar la página
-  loadFromStorage(cardsContainers);
+  const boardSelector = document.getElementById("board-selector");
+  const createBoardBtn = document.getElementById("create-board");
+  const deleteBoardBtn = document.getElementById("delete-board");
+  const clearBtn = document.getElementById("clear-board");
 
-  // 👉 Paso 3: Crear nuevas tarjetas al enviar el formulario
+  // 🧠 Cargar lista de tableros disponibles
+  function loadBoardList() {
+    boardSelector.innerHTML = "";
+    const boardNames = Object.keys(localStorage)
+      .filter(key => key.startsWith("taskflow-board:"))
+      .map(key => key.split(":")[1]);
+
+    if (!boardNames.includes("Principal")) boardNames.unshift("Principal");
+
+    boardNames.forEach(name => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      boardSelector.appendChild(opt);
+    });
+
+    boardSelector.value = currentBoard;
+  }
+
+  // 🧠 Cargar tarjetas del tablero actual
+  function loadBoard() {
+    const data = JSON.parse(localStorage.getItem("taskflow-board:" + currentBoard));
+    Object.values(cardsContainers).forEach(c => (c.innerHTML = ""));
+    if (!data) return;
+
+    for (let key in data) {
+      if (cardsContainers[key]) {
+        data[key].forEach(text => {
+          const card = createCard(text, key, cardsContainers);
+          cardsContainers[key].appendChild(card);
+        });
+      }
+    }
+  }
+
+  // 🧠 Guardar tarjetas del tablero actual
+  function saveBoard() {
+    const data = {
+      todo: [],
+      inProgress: [],
+      done: [],
+    };
+
+    for (let key in cardsContainers) {
+      const cards = cardsContainers[key].querySelectorAll(".card span");
+      cards.forEach(card => {
+        data[key].push(card.textContent);
+      });
+    }
+
+    localStorage.setItem("taskflow-board:" + currentBoard, JSON.stringify(data));
+  }
+
+  // 🧠 Crear tarjeta DOM
+  function createCard(text, listName, containers) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.setAttribute("draggable", "true");
+
+    const span = document.createElement("span");
+    span.textContent = text;
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "❌";
+    deleteBtn.className = "delete-btn";
+    deleteBtn.addEventListener("click", () => {
+      card.remove();
+      saveBoard();
+    });
+
+    card.appendChild(span);
+    card.appendChild(deleteBtn);
+
+    card.addEventListener("dragstart", () => {
+      card.classList.add("dragging");
+      window.draggedCard = card;
+    });
+
+    card.addEventListener("dragend", () => {
+      card.classList.remove("dragging");
+      window.draggedCard = null;
+    });
+
+    return card;
+  }
+
+  // 👉 Crear tarjeta nueva
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const text = input.value.trim();
     if (text !== "") {
       const card = createCard(text, "todo", cardsContainers);
       cardsContainers.todo.appendChild(card);
-      saveToStorage(cardsContainers);
+      saveBoard();
       input.value = "";
     }
   });
 
-  // 👉 Paso 5: Configurar las zonas para soltar tarjetas (drag & drop)
+  // 👉 Drag & Drop entre listas
   Object.entries(cardsContainers).forEach(([zoneName, zone]) => {
     zone.addEventListener("dragover", (e) => {
       e.preventDefault();
@@ -38,88 +128,54 @@ document.addEventListener("DOMContentLoaded", () => {
       zone.classList.remove("drag-over");
       if (window.draggedCard) {
         zone.appendChild(window.draggedCard);
-        saveToStorage(cardsContainers); // guardar después de mover
+        saveBoard();
       }
     });
   });
 
-  // 👉 Paso 7: Botón para limpiar el tablero completo
-  const clearBtn = document.getElementById("clear-board");
+  // 👉 Botón limpiar tablero actual
   clearBtn.addEventListener("click", () => {
-    if (confirm("¿Estás seguro de que quieres borrar todas las tareas?")) {
-      // Limpiar tarjetas de la interfaz
+    if (confirm("¿Borrar todas las tareas del tablero actual?")) {
       Object.values(cardsContainers).forEach(container => {
         container.innerHTML = "";
       });
-
-      // Limpiar localStorage
-      localStorage.removeItem("taskflow-data");
+      saveBoard();
     }
   });
+
+  // 👉 Cambiar de tablero
+  boardSelector.addEventListener("change", () => {
+    currentBoard = boardSelector.value;
+    loadBoard();
+  });
+
+  // 👉 Crear nuevo tablero
+  createBoardBtn.addEventListener("click", () => {
+    const name = prompt("Nombre del nuevo tablero:");
+    if (name && name.trim() !== "") {
+      currentBoard = name.trim();
+      loadBoardList();
+      loadBoard(); // tablero vacío
+      saveBoard(); // guardar estructura vacía
+    }
+  });
+
+  // 👉 Eliminar tablero actual
+  deleteBoardBtn.addEventListener("click", () => {
+    if (currentBoard === "Principal") {
+      alert("No puedes borrar el tablero Principal.");
+      return;
+    }
+
+    if (confirm(`¿Borrar el tablero "${currentBoard}"?`)) {
+      localStorage.removeItem("taskflow-board:" + currentBoard);
+      currentBoard = "Principal";
+      loadBoardList();
+      loadBoard();
+    }
+  });
+
+  // 🧠 Cargar lista de tableros y tablero actual
+  loadBoardList();
+  loadBoard();
 });
-
-// 👉 Función que crea una tarjeta DOM con eventos (usada en creación y carga)
-function createCard(text, listName, containers) {
-  const card = document.createElement("div");
-  card.className = "card";
-  card.setAttribute("draggable", "true");
-
-  const span = document.createElement("span");
-  span.textContent = text;
-
-  const deleteBtn = document.createElement("button");
-  deleteBtn.textContent = "❌";
-  deleteBtn.className = "delete-btn";
-  deleteBtn.addEventListener("click", () => {
-    card.remove();
-    saveToStorage(containers); // guardar después de eliminar
-  });
-
-  card.appendChild(span);
-  card.appendChild(deleteBtn);
-
-  card.addEventListener("dragstart", () => {
-    card.classList.add("dragging");
-    window.draggedCard = card;
-  });
-
-  card.addEventListener("dragend", () => {
-    card.classList.remove("dragging");
-    window.draggedCard = null;
-  });
-
-  return card;
-}
-
-// 👉 Guardar todas las tarjetas por lista en localStorage
-function saveToStorage(containers) {
-  const data = {
-    todo: [],
-    inProgress: [],
-    done: [],
-  };
-
-  for (let key in containers) {
-    const cards = containers[key].querySelectorAll(".card span");
-    cards.forEach(card => {
-      data[key].push(card.textContent);
-    });
-  }
-
-  localStorage.setItem("taskflow-data", JSON.stringify(data));
-}
-
-// 👉 Cargar las tarjetas guardadas desde localStorage al inicio
-function loadFromStorage(containers) {
-  const data = JSON.parse(localStorage.getItem("taskflow-data"));
-  if (!data) return;
-
-  for (let key in data) {
-    if (containers[key]) {
-      data[key].forEach(text => {
-        const card = createCard(text, key, containers);
-        containers[key].appendChild(card);
-      });
-    }
-  }
-}
