@@ -1,51 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TaskFlow - Tablero de Tareas</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow - Tablero de Tareas</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-  <header>
-    <h1>📋 TaskFlow</h1>
+    <header>
+        <h1>📋 TaskFlow</h1>
 
-    <div id="board-controls">
-      <select id="board-selector"></select>
-      <button id="create-board">➕ Nuevo tablero</button>
-      <button id="delete-board">🗑️ Borrar tablero</button>
-    </div>
+        <div id="board-controls">
+            <select id="board-selector"></select>
+            <button id="create-board">➕ Nuevo tablero</button>
+            <button id="delete-board">🗑️ Borrar tablero</button>
+        </div>
 
-    <button id="clear-board">🧹 Limpiar tablero</button>
-    <button id="toggle-dark">🌙 Modo oscuro</button>
-  </header>
+        <button id="clear-board">🧹 Limpiar tablero</button>
+        <button id="toggle-dark">🌙 Modo oscuro</button>
+    </header>
 
-  <main>
-    <section class="list">
-      <h2>Por hacer</h2>
-      <div class="cards" id="todo-cards"></div>
-      <form id="todo-form">
-        <input type="text" id="todo-input" placeholder="Nueva tarea" required />
-        <select id="priority-input">
-          <option value="baja">🟢 Baja</option>
-          <option value="media">🟡 Media</option>
-          <option value="alta">🔴 Alta</option>
-        </select>
-        <button type="submit">Agregar</button>
-      </form>
-    </section>
+    <main>
+        <section class="list">
+            <h2>Por hacer</h2>
+            <div class="cards" id="todo-cards"></div>
+            <form id="todo-form">
+                <input type="text" id="todo-input" placeholder="Nueva tarea" required />
+                <select id="priority-input">
+                    <option value="baja">🟢 Baja</option>
+                    <option value="media">🟡 Media</option>
+                    <option value="alta">🔴 Alta</option>
+                </select>
+                <input type="date" id="due-date" />
+                <button type="submit">Agregar</button>
+            </form>
+        </section>
 
-    <section class="list">
-      <h2>En progreso</h2>
-      <div class="cards" id="progress-cards"></div>
-    </section>
+        <section class="list">
+            <h2>En progreso</h2>
+            <div class="cards" id="progress-cards"></div>
+        </section>
 
-    <section class="list">
-      <h2>Hecho</h2>
-      <div class="cards" id="done-cards"></div>
-    </section>
-  </main>
+        <section class="list">
+            <h2>Hecho</h2>
+            <div class="cards" id="done-cards"></div>
+        </section>
+    </main>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
+
 </html>

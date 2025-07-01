@@ -122,6 +122,17 @@ main {
   border-left: 5px solid #22c55e; /* verde */
 }
 
+.card .due-date {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-left: auto;
+}
+
+body.dark .card .due-date {
+  color: #9ca3af;
+}
+
+
 /* Botón eliminar tarjeta */
 .delete-btn {
   background: none;

@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("todo-form");
   const input = document.getElementById("todo-input");
   const priorityInput = document.getElementById("priority-input");
+  const dueDateInput = document.getElementById("due-date");
 
   const cardsContainers = {
     todo: document.getElementById("todo-cards"),
@@ -45,8 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let key in data) {
       if (cardsContainers[key]) {
         data[key].forEach(item => {
-          const { text, priority } = typeof item === "string" ? { text: item, priority: "baja" } : item;
-          const card = createCard(text, priority, key, cardsContainers);
+          const { text, priority, dueDate } =
+            typeof item === "string" ? { text: item, priority: "baja", dueDate: "" } : item;
+          const card = createCard(text, priority, dueDate, key, cardsContainers);
           cardsContainers[key].appendChild(card);
         });
       }
@@ -66,7 +68,10 @@ document.addEventListener("DOMContentLoaded", () => {
       cards.forEach(card => {
         const text = card.querySelector("span").textContent;
         const priority = card.getAttribute("data-priority") || "baja";
-        data[key].push({ text, priority });
+        const dateSpan = card.querySelector(".due-date");
+        const dueDate = dateSpan ? dateSpan.textContent.replace("📅 ", "") : "";
+
+        data[key].push({ text, priority, dueDate });
       });
     }
 
@@ -74,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Crear tarjeta visual
-  function createCard(text, priority, listName, containers) {
+  function createCard(text, priority, dueDate, listName, containers) {
     const card = document.createElement("div");
     card.className = "card";
     card.setAttribute("draggable", "true");
@@ -82,6 +87,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const span = document.createElement("span");
     span.textContent = text;
+
+    const dateSpan = document.createElement("span");
+    dateSpan.className = "due-date";
+    if (dueDate) {
+      dateSpan.textContent = `📅 ${dueDate}`;
+    }
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "❌";
@@ -92,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     card.appendChild(span);
+    if (dueDate) card.appendChild(dateSpan);
     card.appendChild(deleteBtn);
 
     card.addEventListener("dragstart", () => {
@@ -112,12 +124,14 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const text = input.value.trim();
     const priority = priorityInput.value;
+    const dueDate = dueDateInput.value;
 
     if (text !== "") {
-      const card = createCard(text, priority, "todo", cardsContainers);
+      const card = createCard(text, priority, dueDate, "todo", cardsContainers);
       cardsContainers.todo.appendChild(card);
       saveBoard();
       input.value = "";
+      dueDateInput.value = "";
     }
   });
 
