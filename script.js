@@ -18,7 +18,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearBtn = document.getElementById("clear-board");
   const darkToggle = document.getElementById("toggle-dark");
 
-  // Cargar lista de tableros
+  // 👉 Aplica tema oscuro si está guardado
+  function applyTheme() {
+    const darkMode = localStorage.getItem("taskflow-dark") === "true";
+    document.body.classList.toggle("dark", darkMode);
+    darkToggle.textContent = darkMode ? "☀️ Modo claro" : "🌙 Modo oscuro";
+  }
+
+  darkToggle.addEventListener("click", () => {
+    const current = document.body.classList.contains("dark");
+    localStorage.setItem("taskflow-dark", !current);
+    applyTheme();
+  });
+
+  applyTheme();
+
+  // 👉 Lista de tableros
   function loadBoardList() {
     boardSelector.innerHTML = "";
     const boardNames = Object.keys(localStorage)
@@ -37,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     boardSelector.value = currentBoard;
   }
 
-  // Cargar tareas del tablero actual
+  // 👉 Cargar tarjetas del tablero
   function loadBoard() {
     const data = JSON.parse(localStorage.getItem("taskflow-board:" + currentBoard));
     Object.values(cardsContainers).forEach(c => (c.innerHTML = ""));
@@ -47,7 +62,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (cardsContainers[key]) {
         data[key].forEach(item => {
           const { text, priority, dueDate } =
-            typeof item === "string" ? { text: item, priority: "baja", dueDate: "" } : item;
+            typeof item === "string"
+              ? { text: item, priority: "baja", dueDate: "" }
+              : item;
+
           const card = createCard(text, priority, dueDate, key, cardsContainers);
           cardsContainers[key].appendChild(card);
         });
@@ -55,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Guardar tareas en localStorage
+  // 👉 Guardar tablero actual
   function saveBoard() {
     const data = {
       todo: [],
@@ -78,7 +96,16 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("taskflow-board:" + currentBoard, JSON.stringify(data));
   }
 
-  // Crear tarjeta visual
+  // 👉 Comprobar si una fecha está vencida
+  function isExpired(dateString) {
+    if (!dateString) return false;
+    const today = new Date();
+    const due = new Date(dateString);
+    due.setHours(23, 59, 59, 999); // contar todo el día
+    return due < today;
+  }
+
+  // 👉 Crear tarjeta visual
   function createCard(text, priority, dueDate, listName, containers) {
     const card = document.createElement("div");
     card.className = "card";
@@ -92,6 +119,9 @@ document.addEventListener("DOMContentLoaded", () => {
     dateSpan.className = "due-date";
     if (dueDate) {
       dateSpan.textContent = `📅 ${dueDate}`;
+      if (isExpired(dueDate)) {
+        card.classList.add("expired");
+      }
     }
 
     const deleteBtn = document.createElement("button");
@@ -119,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return card;
   }
 
-  // Crear nueva tarjeta
+  // 👉 Crear nueva tarjeta
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const text = input.value.trim();
@@ -135,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Configurar zonas de drop
+  // 👉 Drag & Drop
   Object.entries(cardsContainers).forEach(([zoneName, zone]) => {
     zone.addEventListener("dragover", (e) => {
       e.preventDefault();
@@ -156,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Botón para limpiar tablero
+  // 👉 Limpiar tablero actual
   clearBtn.addEventListener("click", () => {
     if (confirm("¿Borrar todas las tareas del tablero actual?")) {
       Object.values(cardsContainers).forEach(container => {
@@ -166,13 +196,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Cambiar de tablero
+  // 👉 Cambiar de tablero
   boardSelector.addEventListener("change", () => {
     currentBoard = boardSelector.value;
     loadBoard();
   });
 
-  // Crear nuevo tablero
+  // 👉 Crear nuevo tablero
   createBoardBtn.addEventListener("click", () => {
     const name = prompt("Nombre del nuevo tablero:");
     if (name && name.trim() !== "") {
@@ -183,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Borrar tablero
+  // 👉 Borrar tablero actual
   deleteBoardBtn.addEventListener("click", () => {
     if (currentBoard === "Principal") {
       alert("No puedes borrar el tablero Principal.");
@@ -198,20 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Modo oscuro
-  function applyTheme() {
-    const darkMode = localStorage.getItem("taskflow-dark") === "true";
-    document.body.classList.toggle("dark", darkMode);
-    darkToggle.textContent = darkMode ? "☀️ Modo claro" : "🌙 Modo oscuro";
-  }
-
-  darkToggle.addEventListener("click", () => {
-    const current = document.body.classList.contains("dark");
-    localStorage.setItem("taskflow-dark", !current);
-    applyTheme();
-  });
-
-  applyTheme();
+  // Cargar todo al iniciar
   loadBoardList();
   loadBoard();
 });
