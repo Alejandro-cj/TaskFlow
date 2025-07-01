@@ -87,3 +87,17 @@ form button {
   font-size: 1rem;
   cursor: pointer;
 }
+
+.card.dragging {
+  opacity: 0.5;
+  transform: scale(1.05);
+}
+
+.cards {
+  border: 2px dashed transparent;
+  transition: border 0.2s ease;
+}
+
+.cards.drag-over {
+  border-color: #3b82f6;
+}
