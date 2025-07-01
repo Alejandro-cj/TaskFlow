@@ -17,8 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const deleteBoardBtn = document.getElementById("delete-board");
   const clearBtn = document.getElementById("clear-board");
   const darkToggle = document.getElementById("toggle-dark");
+  const searchInput = document.getElementById("task-search");
 
-  // 👉 Aplica tema oscuro si está guardado
   function applyTheme() {
     const darkMode = localStorage.getItem("taskflow-dark") === "true";
     document.body.classList.toggle("dark", darkMode);
@@ -33,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   applyTheme();
 
-  // 👉 Lista de tableros
   function loadBoardList() {
     boardSelector.innerHTML = "";
     const boardNames = Object.keys(localStorage)
@@ -52,7 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
     boardSelector.value = currentBoard;
   }
 
-  // 👉 Cargar tarjetas del tablero
   function loadBoard() {
     const data = JSON.parse(localStorage.getItem("taskflow-board:" + currentBoard));
     Object.values(cardsContainers).forEach(c => (c.innerHTML = ""));
@@ -73,7 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 👉 Guardar tablero actual
   function saveBoard() {
     const data = {
       todo: [],
@@ -96,16 +93,14 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("taskflow-board:" + currentBoard, JSON.stringify(data));
   }
 
-  // 👉 Comprobar si una fecha está vencida
   function isExpired(dateString) {
     if (!dateString) return false;
     const today = new Date();
     const due = new Date(dateString);
-    due.setHours(23, 59, 59, 999); // contar todo el día
+    due.setHours(23, 59, 59, 999);
     return due < today;
   }
 
-  // 👉 Crear tarjeta visual
   function createCard(text, priority, dueDate, listName, containers) {
     const card = document.createElement("div");
     card.className = "card";
@@ -149,7 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return card;
   }
 
-  // 👉 Crear nueva tarjeta
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const text = input.value.trim();
@@ -165,7 +159,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 👉 Drag & Drop
   Object.entries(cardsContainers).forEach(([zoneName, zone]) => {
     zone.addEventListener("dragover", (e) => {
       e.preventDefault();
@@ -186,7 +179,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 👉 Limpiar tablero actual
   clearBtn.addEventListener("click", () => {
     if (confirm("¿Borrar todas las tareas del tablero actual?")) {
       Object.values(cardsContainers).forEach(container => {
@@ -196,13 +188,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 👉 Cambiar de tablero
   boardSelector.addEventListener("change", () => {
     currentBoard = boardSelector.value;
     loadBoard();
   });
 
-  // 👉 Crear nuevo tablero
   createBoardBtn.addEventListener("click", () => {
     const name = prompt("Nombre del nuevo tablero:");
     if (name && name.trim() !== "") {
@@ -213,7 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 👉 Borrar tablero actual
   deleteBoardBtn.addEventListener("click", () => {
     if (currentBoard === "Principal") {
       alert("No puedes borrar el tablero Principal.");
@@ -228,7 +217,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Cargar todo al iniciar
+  // 🔍 Búsqueda
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase();
+
+    Object.values(cardsContainers).forEach(container => {
+      const cards = container.querySelectorAll(".card");
+      cards.forEach(card => {
+        const text = card.querySelector("span").textContent.toLowerCase();
+        card.style.display = text.includes(query) ? "flex" : "none";
+      });
+    });
+  });
+
   loadBoardList();
   loadBoard();
 });
