@@ -1,123 +1,34 @@
-body {
-  font-family: 'Segoe UI', sans-serif;
+/* Reset básico */
+* {
   margin: 0;
   padding: 0;
-  background-color: #e8eff5;
+  box-sizing: border-box;
 }
 
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f3f4f6;
+  color: #1f2937;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/* Encabezado */
 header {
-  background-color: #3b82f6;
-  color: white;
-  padding: 1rem;
   text-align: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
 }
 
-.board {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  justify-content: center;
-  overflow-x: auto;
-}
-
-.list {
-  background-color: #fff;
-  border-radius: 0.5rem;
-  width: 300px;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-.list h2 {
-  margin-top: 0;
-  font-size: 1.2rem;
-  color: #374151;
-}
-
-.cards {
-  min-height: 100px;
-  margin-top: 1rem;
-}
-
-form {
-  margin-top: 1rem;
-  display: flex;
-  gap: 0.5rem;
-}
-
-form input {
-  flex: 1;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  border: 1px solid #ccc;
-}
-
-form button {
-  padding: 0.5rem 1rem;
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-}
-
-.card {
-  background-color: #f9fafb;
-  border: 1px solid #d1d5db;
-  padding: 0.5rem;
+header h1 {
+  font-size: 2rem;
   margin-bottom: 0.5rem;
-  border-radius: 0.25rem;
-  text-align: left;
 }
 
-
-.card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+header button {
+  margin: 0.3rem;
 }
 
-.delete-btn {
-  background-color: transparent;
-  border: none;
-  color: #ef4444;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.card.dragging {
-  opacity: 0.5;
-  transform: scale(1.05);
-}
-
-.cards {
-  border: 2px dashed transparent;
-  transition: border 0.2s ease;
-}
-
-.cards.drag-over {
-  border-color: #3b82f6;
-}
-
-#clear-board {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s ease;
-}
-
-#clear-board:hover {
-  background-color: #dc2626;
-}
-
+/* Controles del tablero */
 #board-controls {
   display: flex;
   gap: 0.5rem;
@@ -127,7 +38,9 @@ form button {
 }
 
 #board-controls select,
-#board-controls button {
+#board-controls button,
+#clear-board,
+#toggle-dark {
   padding: 0.4rem 0.6rem;
   font-size: 0.9rem;
   border-radius: 0.4rem;
@@ -135,17 +48,106 @@ form button {
   cursor: pointer;
 }
 
+/* Botón modo oscuro */
 #toggle-dark {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
   background-color: #1f2937;
-  color: #fff;
+  color: white;
   border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-size: 0.9rem;
 }
 
+/* Estructura principal */
+main {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Lista de tareas */
+.list {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  width: 300px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.list h2 {
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.cards {
+  min-height: 50px;
+  margin-bottom: 1rem;
+  border-radius: 0.3rem;
+  padding: 0.5rem;
+  background-color: #f9fafb;
+  transition: background-color 0.2s;
+}
+
+.cards.drag-over {
+  background-color: #e0f2fe;
+}
+
+/* Tarjetas */
+.card {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.1s ease;
+}
+
+.card.dragging {
+  opacity: 0.6;
+  transform: scale(1.02);
+}
+
+/* Colores por prioridad */
+.card[data-priority="alta"] {
+  border-left: 5px solid #ef4444; /* rojo */
+}
+
+.card[data-priority="media"] {
+  border-left: 5px solid #facc15; /* amarillo */
+}
+
+.card[data-priority="baja"] {
+  border-left: 5px solid #22c55e; /* verde */
+}
+
+/* Botón eliminar tarjeta */
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Formulario */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+form input,
+form select,
+form button {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 0.4rem;
+  border: 1px solid #d1d5db;
+}
+
+/* Modo oscuro */
 body.dark {
   background-color: #111827;
   color: #e5e7eb;
@@ -161,6 +163,10 @@ body.dark .list {
   border: 1px solid #334155;
 }
 
+body.dark .cards {
+  background-color: #1e293b;
+}
+
 body.dark .card {
   background-color: #334155;
   border: 1px solid #475569;
@@ -172,4 +178,12 @@ body.dark button {
   background-color: #1f2937;
   color: #f1f5f9;
   border-color: #334155;
+}
+
+body.dark .delete-btn {
+  color: #f87171;
+}
+
+body.dark .cards.drag-over {
+  background-color: #374151;
 }

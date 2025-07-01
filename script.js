@@ -1,8 +1,10 @@
-let currentBoard = "Principal"; // tablero por defecto
+let currentBoard = "Principal";
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("todo-form");
   const input = document.getElementById("todo-input");
+  const priorityInput = document.getElementById("priority-input");
+
   const cardsContainers = {
     todo: document.getElementById("todo-cards"),
     inProgress: document.getElementById("progress-cards"),
@@ -13,8 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const createBoardBtn = document.getElementById("create-board");
   const deleteBoardBtn = document.getElementById("delete-board");
   const clearBtn = document.getElementById("clear-board");
+  const darkToggle = document.getElementById("toggle-dark");
 
-  // 🧠 Cargar lista de tableros disponibles
+  // Cargar lista de tableros
   function loadBoardList() {
     boardSelector.innerHTML = "";
     const boardNames = Object.keys(localStorage)
@@ -33,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     boardSelector.value = currentBoard;
   }
 
-  // 🧠 Cargar tarjetas del tablero actual
+  // Cargar tareas del tablero actual
   function loadBoard() {
     const data = JSON.parse(localStorage.getItem("taskflow-board:" + currentBoard));
     Object.values(cardsContainers).forEach(c => (c.innerHTML = ""));
@@ -41,15 +44,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     for (let key in data) {
       if (cardsContainers[key]) {
-        data[key].forEach(text => {
-          const card = createCard(text, key, cardsContainers);
+        data[key].forEach(item => {
+          const { text, priority } = typeof item === "string" ? { text: item, priority: "baja" } : item;
+          const card = createCard(text, priority, key, cardsContainers);
           cardsContainers[key].appendChild(card);
         });
       }
     }
   }
 
-  // 🧠 Guardar tarjetas del tablero actual
+  // Guardar tareas en localStorage
   function saveBoard() {
     const data = {
       todo: [],
@@ -58,20 +62,23 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     for (let key in cardsContainers) {
-      const cards = cardsContainers[key].querySelectorAll(".card span");
+      const cards = cardsContainers[key].querySelectorAll(".card");
       cards.forEach(card => {
-        data[key].push(card.textContent);
+        const text = card.querySelector("span").textContent;
+        const priority = card.getAttribute("data-priority") || "baja";
+        data[key].push({ text, priority });
       });
     }
 
     localStorage.setItem("taskflow-board:" + currentBoard, JSON.stringify(data));
   }
 
-  // 🧠 Crear tarjeta DOM
-  function createCard(text, listName, containers) {
+  // Crear tarjeta visual
+  function createCard(text, priority, listName, containers) {
     const card = document.createElement("div");
     card.className = "card";
     card.setAttribute("draggable", "true");
+    card.setAttribute("data-priority", priority);
 
     const span = document.createElement("span");
     span.textContent = text;
@@ -100,19 +107,21 @@ document.addEventListener("DOMContentLoaded", () => {
     return card;
   }
 
-  // 👉 Crear tarjeta nueva
+  // Crear nueva tarjeta
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const text = input.value.trim();
+    const priority = priorityInput.value;
+
     if (text !== "") {
-      const card = createCard(text, "todo", cardsContainers);
+      const card = createCard(text, priority, "todo", cardsContainers);
       cardsContainers.todo.appendChild(card);
       saveBoard();
       input.value = "";
     }
   });
 
-  // 👉 Drag & Drop entre listas
+  // Configurar zonas de drop
   Object.entries(cardsContainers).forEach(([zoneName, zone]) => {
     zone.addEventListener("dragover", (e) => {
       e.preventDefault();
@@ -133,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 👉 Botón limpiar tablero actual
+  // Botón para limpiar tablero
   clearBtn.addEventListener("click", () => {
     if (confirm("¿Borrar todas las tareas del tablero actual?")) {
       Object.values(cardsContainers).forEach(container => {
@@ -143,24 +152,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 👉 Cambiar de tablero
+  // Cambiar de tablero
   boardSelector.addEventListener("change", () => {
     currentBoard = boardSelector.value;
     loadBoard();
   });
 
-  // 👉 Crear nuevo tablero
+  // Crear nuevo tablero
   createBoardBtn.addEventListener("click", () => {
     const name = prompt("Nombre del nuevo tablero:");
     if (name && name.trim() !== "") {
       currentBoard = name.trim();
       loadBoardList();
-      loadBoard(); // tablero vacío
-      saveBoard(); // guardar estructura vacía
+      loadBoard();
+      saveBoard();
     }
   });
 
-  // 👉 Eliminar tablero actual
+  // Borrar tablero
   deleteBoardBtn.addEventListener("click", () => {
     if (currentBoard === "Principal") {
       alert("No puedes borrar el tablero Principal.");
@@ -175,13 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 🧠 Cargar lista de tableros y tablero actual
-  loadBoardList();
-  loadBoard();
-
-    // 👉 Paso 9: Activar modo oscuro si está guardado
-  const darkToggle = document.getElementById("toggle-dark");
-
+  // Modo oscuro
   function applyTheme() {
     const darkMode = localStorage.getItem("taskflow-dark") === "true";
     document.body.classList.toggle("dark", darkMode);
@@ -195,5 +198,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   applyTheme();
-
+  loadBoardList();
+  loadBoard();
 });
