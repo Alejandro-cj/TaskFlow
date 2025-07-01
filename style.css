@@ -32,20 +32,12 @@ header h1 {
 }
 
 #board-controls select,
-#board-controls button,
-#clear-board,
-#toggle-dark {
+#board-controls button {
   padding: 0.4rem 0.6rem;
   font-size: 0.9rem;
   border-radius: 0.4rem;
   border: 1px solid #ccc;
   cursor: pointer;
-}
-
-#toggle-dark {
-  background-color: #1f2937;
-  color: white;
-  border: none;
 }
 
 /* Buscador */
@@ -110,7 +102,6 @@ main {
 
 .cards {
   min-height: 50px;
-  margin-bottom: 1rem;
   border-radius: 0.3rem;
   padding: 0.5rem;
   background-color: #f9fafb;
@@ -132,7 +123,6 @@ main {
   align-items: center;
   gap: 0.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: transform 0.1s ease;
 }
 
 .card.dragging {
@@ -158,18 +148,25 @@ main {
   margin-left: auto;
 }
 
+/* Estilos especiales */
 .card.expired {
   border-left: 5px solid #dc2626 !important;
   background-color: #fee2e2;
 }
 
-body.dark .card .due-date {
-  color: #9ca3af;
+.card.soon {
+  border-left: 5px solid #f97316 !important;
+  background-color: #fff7ed;
 }
 
 body.dark .card.expired {
   background-color: #7f1d1d;
   color: #fef2f2;
+}
+
+body.dark .card.soon {
+  background-color: #78350f;
+  color: #fff7ed;
 }
 
 .delete-btn {

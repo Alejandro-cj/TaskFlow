@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("todo-input");
   const priorityInput = document.getElementById("priority-input");
   const dueDateInput = document.getElementById("due-date");
+  const searchInput = document.getElementById("task-search");
 
   const cardsContainers = {
     todo: document.getElementById("todo-cards"),
@@ -17,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const deleteBoardBtn = document.getElementById("delete-board");
   const clearBtn = document.getElementById("clear-board");
   const darkToggle = document.getElementById("toggle-dark");
-  const searchInput = document.getElementById("task-search");
 
   function applyTheme() {
     const darkMode = localStorage.getItem("taskflow-dark") === "true";
@@ -33,72 +33,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   applyTheme();
 
-  function loadBoardList() {
-    boardSelector.innerHTML = "";
-    const boardNames = Object.keys(localStorage)
-      .filter(key => key.startsWith("taskflow-board:"))
-      .map(key => key.split(":")[1]);
-
-    if (!boardNames.includes("Principal")) boardNames.unshift("Principal");
-
-    boardNames.forEach(name => {
-      const opt = document.createElement("option");
-      opt.value = name;
-      opt.textContent = name;
-      boardSelector.appendChild(opt);
-    });
-
-    boardSelector.value = currentBoard;
-  }
-
-  function loadBoard() {
-    const data = JSON.parse(localStorage.getItem("taskflow-board:" + currentBoard));
-    Object.values(cardsContainers).forEach(c => (c.innerHTML = ""));
-    if (!data) return;
-
-    for (let key in data) {
-      if (cardsContainers[key]) {
-        data[key].forEach(item => {
-          const { text, priority, dueDate } =
-            typeof item === "string"
-              ? { text: item, priority: "baja", dueDate: "" }
-              : item;
-
-          const card = createCard(text, priority, dueDate, key, cardsContainers);
-          cardsContainers[key].appendChild(card);
-        });
-      }
-    }
-  }
-
-  function saveBoard() {
-    const data = {
-      todo: [],
-      inProgress: [],
-      done: [],
-    };
-
-    for (let key in cardsContainers) {
-      const cards = cardsContainers[key].querySelectorAll(".card");
-      cards.forEach(card => {
-        const text = card.querySelector("span").textContent;
-        const priority = card.getAttribute("data-priority") || "baja";
-        const dateSpan = card.querySelector(".due-date");
-        const dueDate = dateSpan ? dateSpan.textContent.replace("📅 ", "") : "";
-
-        data[key].push({ text, priority, dueDate });
-      });
-    }
-
-    localStorage.setItem("taskflow-board:" + currentBoard, JSON.stringify(data));
-  }
-
   function isExpired(dateString) {
     if (!dateString) return false;
     const today = new Date();
     const due = new Date(dateString);
     due.setHours(23, 59, 59, 999);
     return due < today;
+  }
+
+  function isSoon(dateString) {
+    if (!dateString) return false;
+    const today = new Date();
+    const due = new Date(dateString);
+    const diffTime = due - today;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    return diffDays >= 0 && diffDays <= 2;
   }
 
   function createCard(text, priority, dueDate, listName, containers) {
@@ -116,6 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
       dateSpan.textContent = `📅 ${dueDate}`;
       if (isExpired(dueDate)) {
         card.classList.add("expired");
+      } else if (isSoon(dueDate)) {
+        card.classList.add("soon");
       }
     }
 
@@ -158,6 +109,66 @@ document.addEventListener("DOMContentLoaded", () => {
       dueDateInput.value = "";
     }
   });
+
+  function saveBoard() {
+    const data = {
+      todo: [],
+      inProgress: [],
+      done: [],
+    };
+
+    for (let key in cardsContainers) {
+      const cards = cardsContainers[key].querySelectorAll(".card");
+      cards.forEach(card => {
+        const text = card.querySelector("span").textContent;
+        const priority = card.getAttribute("data-priority") || "baja";
+        const dateSpan = card.querySelector(".due-date");
+        const dueDate = dateSpan ? dateSpan.textContent.replace("📅 ", "") : "";
+
+        data[key].push({ text, priority, dueDate });
+      });
+    }
+
+    localStorage.setItem("taskflow-board:" + currentBoard, JSON.stringify(data));
+  }
+
+  function loadBoardList() {
+    boardSelector.innerHTML = "";
+    const boardNames = Object.keys(localStorage)
+      .filter(key => key.startsWith("taskflow-board:"))
+      .map(key => key.split(":")[1]);
+
+    if (!boardNames.includes("Principal")) boardNames.unshift("Principal");
+
+    boardNames.forEach(name => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      boardSelector.appendChild(opt);
+    });
+
+    boardSelector.value = currentBoard;
+  }
+
+  function loadBoard() {
+    const data = JSON.parse(localStorage.getItem("taskflow-board:" + currentBoard));
+    Object.values(cardsContainers).forEach(c => (c.innerHTML = ""));
+    if (!data) return;
+
+    for (let key in data) {
+      if (cardsContainers[key]) {
+        data[key].forEach(item => {
+          const { text, priority, dueDate } =
+            typeof item === "string"
+              ? { text: item, priority: "baja", dueDate: "" }
+              : item;
+
+          const card = createCard(text, priority, dueDate, key, cardsContainers);
+          cardsContainers[key].appendChild(card);
+        });
+      }
+    }
+  }
 
   Object.entries(cardsContainers).forEach(([zoneName, zone]) => {
     zone.addEventListener("dragover", (e) => {
@@ -217,7 +228,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 🔍 Búsqueda
   searchInput.addEventListener("input", () => {
     const query = searchInput.value.toLowerCase();
 
