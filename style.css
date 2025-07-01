@@ -72,3 +72,18 @@ form button {
   border-radius: 0.25rem;
   text-align: left;
 }
+
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.delete-btn {
+  background-color: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 1rem;
+  cursor: pointer;
+}
