@@ -134,3 +134,42 @@ form button {
   border: 1px solid #ccc;
   cursor: pointer;
 }
+
+#toggle-dark {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #1f2937;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+body.dark {
+  background-color: #111827;
+  color: #e5e7eb;
+}
+
+body.dark header {
+  background-color: #1f2937;
+  color: white;
+}
+
+body.dark .list {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+}
+
+body.dark .card {
+  background-color: #334155;
+  border: 1px solid #475569;
+}
+
+body.dark input,
+body.dark select,
+body.dark button {
+  background-color: #1f2937;
+  color: #f1f5f9;
+  border-color: #334155;
+}

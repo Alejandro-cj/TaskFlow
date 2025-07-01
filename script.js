@@ -178,4 +178,22 @@ document.addEventListener("DOMContentLoaded", () => {
   // 🧠 Cargar lista de tableros y tablero actual
   loadBoardList();
   loadBoard();
+
+    // 👉 Paso 9: Activar modo oscuro si está guardado
+  const darkToggle = document.getElementById("toggle-dark");
+
+  function applyTheme() {
+    const darkMode = localStorage.getItem("taskflow-dark") === "true";
+    document.body.classList.toggle("dark", darkMode);
+    darkToggle.textContent = darkMode ? "☀️ Modo claro" : "🌙 Modo oscuro";
+  }
+
+  darkToggle.addEventListener("click", () => {
+    const current = document.body.classList.contains("dark");
+    localStorage.setItem("taskflow-dark", !current);
+    applyTheme();
+  });
+
+  applyTheme();
+
 });
